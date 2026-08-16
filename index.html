@@ -322,7 +322,7 @@
           <div class="field"><label>메모</label><input type="text" id="t-memo" placeholder="선택"></div>
         </div>
         <button class="btn" id="t-save">저장</button>
-        <div class="muted-note" id="t-hint">결제수단을 <b>신한카드</b> ↔ <b>은행계좌</b>로 바꿔가며 저장해 보세요.
+        <div class="muted-note" id="t-hint">결제수단을 <b>카드</b> ↔ <b>은행계좌</b>로 바꿔가며 저장해 보세요.
           카드는 통장 잔액과 사용가능자금을 건드리지 않고 <b>부채·순자산만</b> 즉시 줄이고,
           계좌는 <b>넷 다</b> 즉시 움직입니다.</div>
       </div>
@@ -333,8 +333,43 @@
       </div>
 
       <div class="card">
+        <h3>변동 생활비 예산 <span class="sub">고정지출 말고 그때그때 쓰는 돈</span></h3>
+        <div class="field-row">
+          <div class="field"><label>한 달 예산</label>
+            <input type="text" id="b-amt" inputmode="numeric" placeholder="0"></div>
+          <div class="field"><label>&nbsp;</label>
+            <button class="btn sec" id="b-save">예산 저장</button></div>
+        </div>
+        <div class="muted-note" id="b-note"></div>
+      </div>
+
+      <div class="card">
         <h3>반복 거래 <span class="sub">한 번 등록하면 미래까지 자동 계산</span></h3>
         <div id="t-recurring"></div>
+        <div style="border-top:1px solid var(--line);margin-top:10px;padding-top:12px">
+          <div class="seg" id="r-flow">
+            <button data-v="out" class="on">지출</button>
+            <button data-v="in">수입</button>
+          </div>
+          <div class="field"><label>이름</label>
+            <input type="text" id="r-name" placeholder="예: 월세 / 급여 / 넷플릭스"></div>
+          <div class="field-row">
+            <div class="field"><label>금액</label>
+              <input type="text" id="r-amt" inputmode="numeric" placeholder="0"></div>
+            <div class="field"><label>매월 며칠</label>
+              <select id="r-day"></select></div>
+          </div>
+          <div class="field"><label>성격</label>
+            <select id="r-kind">
+              <option value="normal">일반 (고정 수입·지출)</option>
+              <option value="saving">저축성 이체 — 나가지만 순자산은 그대로</option>
+              <option value="card">카드 결제</option>
+              <option value="install">할부 상환</option>
+            </select></div>
+          <button class="btn sec" id="r-add">반복 거래 추가</button>
+          <div class="muted-note">성격을 제대로 골라야 저축률과 사용가능자금이 맞게 나옵니다.
+            적금 자동이체는 <b>저축성 이체</b>입니다.</div>
+        </div>
       </div>
     </section>
 
@@ -358,7 +393,7 @@
         </div>
         <button class="btn" id="a-add">등록</button>
         <div class="muted-note">아래 목록에서 <b>항목을 누르면</b> 금액 수정·삭제할 수 있습니다.
-          <button class="ghost-btn" id="a-clear" style="margin-left:6px">샘플 비우고 내 데이터로 시작</button></div>
+          전체 초기화는 아래 <b>내 데이터</b> 카드에 있습니다.</div>
       </div>
 
       <div class="card">
@@ -374,6 +409,29 @@
       <div class="card">
         <h3>카드 <span class="sub">통장 잔액과 따로 관리</span></h3>
         <div id="a-cards"></div>
+        <div style="border-top:1px solid var(--line);margin-top:10px;padding-top:12px">
+          <div class="field-row">
+            <div class="field"><label>카드 이름</label>
+              <input type="text" id="c-name" placeholder="예: 현대카드"></div>
+            <div class="field"><label>결제일</label><select id="c-day"></select></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>결제예정액 (전월 사용분)</label>
+              <input type="text" id="c-unpaid" inputmode="numeric" placeholder="0"></div>
+            <div class="field"><label>당월 사용액</label>
+              <input type="text" id="c-this" inputmode="numeric" placeholder="0"></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>할부 잔액</label>
+              <input type="text" id="c-inst" inputmode="numeric" placeholder="0"></div>
+            <div class="field"><label>남은 회차</label><select id="c-left"></select></div>
+          </div>
+          <button class="btn sec" id="c-save">카드 정보 저장</button>
+          <button class="btn sec" id="c-settle" style="margin-top:6px">결제일 마감 처리</button>
+          <div class="muted-note" id="c-warn" style="display:none"></div>
+          <div class="muted-note">결제일은 카드사가 아니라 <b>가입할 때 본인이 고른 날짜</b>입니다.
+            카드 앱이나 명세서에서 확인하세요. 결제일을 잘못 넣으면 사용가능자금과 예상잔액이 틀어집니다.</div>
+        </div>
       </div>
 
       <div class="card">
@@ -384,6 +442,13 @@
           <button class="ghost-btn" id="d-import">백업 불러오기</button>
           <input type="file" id="d-file" accept="application/json" style="display:none">
         </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;
+                    border-top:1px solid var(--line);padding-top:10px">
+          <button class="ghost-btn" id="d-reset" style="color:var(--bad)">전부 지우고 처음부터</button>
+          <button class="ghost-btn" id="d-sample">샘플 데이터로 되돌리기</button>
+        </div>
+        <div class="muted-note">전부 지우면 자산·부채·거래·반복거래·목표·과거 자금현황서가 <b>모두</b> 사라집니다.
+          지우기 전에 백업 파일을 먼저 받아 두세요.</div>
       </div>
 
       <div class="card">
@@ -528,7 +593,7 @@ const THIS_MONTH_DAYS = 31;
 const accounts = [
   {id:'cash',    name:'현금(지갑)',           kind:'cash',    liq:'instant', balance:   200000},
   {id:'shinhan', name:'신한은행 급여',        kind:'bank',    liq:'instant', balance:  3200000},
-  {id:'kb',      name:'국민은행 생활비',      kind:'bank',    liq:'instant', balance:  1800000},
+  {id:'living',  name:'신한은행 생활비',      kind:'bank',    liq:'instant', balance:  1800000},
   {id:'kakao',   name:'카카오뱅크 비상금',    kind:'bank',    liq:'instant', balance:  6500000},
   {id:'toss',    name:'토스',                 kind:'bank',    liq:'instant', balance:   300000},
   {id:'jeokgeum',name:'정기적금 (27.03 만기)',kind:'savings', liq:'short',   balance: 20000000},
@@ -545,7 +610,7 @@ const loans = [
   {id:'credit',     name:'신용대출', kind:'loan', balance: 8000000, rate:5.8},
 ];
 
-const card = { id:'shinhanCard', name:'신한카드', dueDay:25,
+const card = { id:'mainCard', name:'현대카드', dueDay:25,
                unpaid:1240000,      // 7월 사용분 → 8/25 결제 (확정 부채)
                thisMonth:520000,    // 8/1~8/16 사용분 → 9/25 결제 (쌓이는 중인 부채)
                installBalance:760000, installMonthly:190000, installLeft:4 };
@@ -553,18 +618,18 @@ const card = { id:'shinhanCard', name:'신한카드', dueDay:25,
 // 카드 사용은 '지금' 통장에서 나가지 않지만 '지금' 부채는 늘어난다 → 순자산은 즉시 감소
 function debtList(){
   return loans.concat([
-    {id:'cardUnpaid', name:`신한카드 결제예정 (${card.dueDay}일)`, kind:'card',        balance:card.unpaid},
-    {id:'cardThis',   name:'신한카드 당월 사용액 (다음달 결제)',   kind:'card',        balance:card.thisMonth},
-    {id:'install',    name:`노트북 할부 잔액 (${card.installLeft}회)`, kind:'installment', balance:card.installBalance},
+    {id:'cardUnpaid', name:`${card.name} 결제예정 (${card.dueDay}일)`, kind:'card',        balance:card.unpaid},
+    {id:'cardThis',   name:`${card.name} 당월 사용액 (다음달 결제)`, kind:'card',        balance:card.thisMonth},
+    {id:'install',    name:`할부 잔액 (${card.installLeft}회)`,        kind:'installment', balance:card.installBalance},
   ]);
 }
 
 const recurring = [
   {id:'r1', name:'급여',        flow:'in',  amount:4500000, day:25, cat:'급여',   acc:'shinhan'},
-  {id:'r2', name:'월세',        flow:'out', amount: 900000, day:10, cat:'주거',   acc:'kb'},
-  {id:'r3', name:'보험료',      flow:'out', amount: 150000, day:15, cat:'보험',   acc:'kb'},
-  {id:'r4', name:'통신비',      flow:'out', amount:  85000, day:17, cat:'통신',   acc:'kb'},
-  {id:'r5', name:'관리비',      flow:'out', amount: 180000, day:20, cat:'주거',   acc:'kb'},
+  {id:'r2', name:'월세',        flow:'out', amount: 900000, day:10, cat:'주거',   acc:'living'},
+  {id:'r3', name:'보험료',      flow:'out', amount: 150000, day:15, cat:'보험',   acc:'living'},
+  {id:'r4', name:'통신비',      flow:'out', amount:  85000, day:17, cat:'통신',   acc:'living'},
+  {id:'r5', name:'관리비',      flow:'out', amount: 180000, day:20, cat:'주거',   acc:'living'},
   {id:'r6', name:'카드 결제',   flow:'out', amount:1240000, day:25, cat:'카드',   acc:'shinhan', isCard:true},
   {id:'r7', name:'적금 자동이체',flow:'out',amount: 500000, day:25, cat:'저축',   acc:'shinhan', isSaving:true},
   {id:'r8', name:'노트북 할부', flow:'out', amount: 190000, day:25, cat:'할부',   acc:'shinhan', isInstall:true},
@@ -573,15 +638,15 @@ const recurring = [
 
 // 변동(생활) 지출 — 8/1~8/16 실제 기록
 let txns = [
-  {id:1, date:'2026-08-14', flow:'out', amount: 42000, cat:'식비',   acc:'shinhanCard', method:'card', memo:'저녁 모임'},
-  {id:2, date:'2026-08-13', flow:'out', amount: 18500, cat:'교통',   acc:'kb',          method:'cash', memo:'택시'},
-  {id:3, date:'2026-08-11', flow:'out', amount:128000, cat:'생활용품',acc:'shinhanCard',method:'card', memo:'생필품'},
-  {id:4, date:'2026-08-09', flow:'out', amount: 65000, cat:'식비',   acc:'shinhanCard', method:'card', memo:'장보기'},
-  {id:5, date:'2026-08-07', flow:'out', amount: 32000, cat:'문화',   acc:'kb',          method:'cash', memo:'영화'},
-  {id:6, date:'2026-08-05', flow:'out', amount:285000, cat:'의료',   acc:'shinhanCard', method:'card', memo:'치과'},
-  {id:7, date:'2026-08-03', flow:'out', amount:119500, cat:'식비',   acc:'kb',          method:'cash', memo:'식료품'},
+  {id:1, date:'2026-08-14', flow:'out', amount: 42000, cat:'식비',   acc:'mainCard', method:'card', memo:'저녁 모임'},
+  {id:2, date:'2026-08-13', flow:'out', amount: 18500, cat:'교통',   acc:'living',          method:'cash', memo:'택시'},
+  {id:3, date:'2026-08-11', flow:'out', amount:128000, cat:'생활용품',acc:'mainCard',method:'card', memo:'생필품'},
+  {id:4, date:'2026-08-09', flow:'out', amount: 65000, cat:'식비',   acc:'mainCard', method:'card', memo:'장보기'},
+  {id:5, date:'2026-08-07', flow:'out', amount: 32000, cat:'문화',   acc:'living',          method:'cash', memo:'영화'},
+  {id:6, date:'2026-08-05', flow:'out', amount:285000, cat:'의료',   acc:'mainCard', method:'card', memo:'치과'},
+  {id:7, date:'2026-08-03', flow:'out', amount:119500, cat:'식비',   acc:'living',          method:'cash', memo:'식료품'},
 ];
-const VARIABLE_BUDGET = 1100000;   // 이번 달 변동지출 예산
+let variableBudget = 1100000;      // 이번 달 변동 생활비 예산 (사용자가 바꿀 수 있다)
 const CASH_SHARE = 0.5;            // 남은 변동지출 중 현금·체크 비중 가정
 
 const goals = [
@@ -610,6 +675,15 @@ const div = (a,b) => b ? a/b : 0;              // 데이터가 비어 있어도 
 const day = d => parseInt(d.slice(8,10), 10);
 
 function compute(){
+  // 카드 결제·할부 반복거래는 카드 정보(결제일·금액)를 항상 따라간다
+  recurring.filter(r=>r.isCard).forEach(r=>{
+    r.day = card.dueDay; r.amount = card.unpaid; r.name = `${card.name} 결제`;
+  });
+  recurring.filter(r=>r.isInstall).forEach(r=>{
+    r.day = card.dueDay;
+    if (card.installMonthly) r.amount = card.installMonthly;
+  });
+
   const debts = debtList();
   const totalAssets = sum(accounts, a=>a.balance);
   const totalDebts  = sum(debts,    d=>d.balance);
@@ -629,7 +703,7 @@ function compute(){
   // 변동지출
   const varSpent    = sum(txns.filter(t=>t.flow==='out'), t=>t.amount);
   const varSpentCash= sum(txns.filter(t=>t.flow==='out' && t.method!=='card'), t=>t.amount);
-  const varLeft     = Math.max(0, VARIABLE_BUDGET - varSpent);
+  const varLeft     = Math.max(0, variableBudget - varSpent);
   const varLeftCash = Math.round(varLeft * CASH_SHARE);
 
   // 월말 예상 현금
@@ -647,7 +721,7 @@ function compute(){
 
   // 필수 생활비 (비상금 몇 개월치인가)
   const essential = sum(recurring.filter(r=>
-      r.flow==='out' && !r.isSaving && !r.isCard && !r.isInstall), r=>r.amount) + VARIABLE_BUDGET;
+      r.flow==='out' && !r.isSaving && !r.isCard && !r.isInstall), r=>r.amount) + variableBudget;
   const runwayMonths = div(liquid, essential);
 
   // 다음 달 카드 결제 예정 (당월 사용 + 남은 카드소비 추정)
@@ -667,7 +741,7 @@ function compute(){
     c  += flow;
     cs += flow - sum(simItems.filter(s=>s.idx===i), s=>s.amount);
     base.push(c); withSim.push(cs);
-    installLeft--; cardDue = VARIABLE_BUDGET * 0.7;   // 이후엔 평균 카드사용 추정
+    installLeft--; cardDue = variableBudget * 0.7;   // 이후엔 평균 카드사용 추정
   }
 
   // ---- 월말(말일) 기준 예상 스냅샷 ----
@@ -687,7 +761,9 @@ function compute(){
   // 순자산 추이 — 전부 말일 기준
   const trend = history.map(h=>({m:h.m, v:h.a-h.d}))
                        .concat([{m:'26.08', v:eomNet, est:true}]);
-  const prevNet = history[history.length-1].a - history[history.length-1].d;
+  const prevNet = history.length
+    ? history[history.length-1].a - history[history.length-1].d
+    : netWorth;
 
   return {debts,totalAssets,totalDebts,netWorth,liquid,available,eomCash,
           eomAssets,eomDebts,eomNet,eomBreak,eomInstall,
@@ -709,6 +785,8 @@ const wonS = n => { // 만원 단위 축약
   return s + a.toLocaleString('ko-KR');
 };
 const pct = n => (n*100).toFixed(1) + '%';
+const wonSign  = n => (n>=0?'+':'−') + won(Math.abs(n));    // 항상 부호를 붙인다
+const wonSignS = n => (n>=0?'+':'−') + wonS(Math.abs(n));
 
 /* =========================================================================
    3. 렌더링
@@ -735,6 +813,17 @@ function render(){
   const m = compute();
   renderHome(m); renderTxn(m); renderAsset(m); renderAnalysis(m);
   if (typeof updateDataStatus === 'function') updateDataStatus();
+  if (typeof fillCardForm === 'function' && document.activeElement.id !== 'c-name') fillCardForm();
+  if (typeof fillBudgetForm === 'function') fillBudgetForm();
+  const warn = document.getElementById('c-warn');
+  if (warn) {
+    const passed = card.dueDay < TODAY.getDate() && card.unpaid > 0;
+    warn.style.display = passed ? 'block' : 'none';
+    warn.innerHTML = passed
+      ? `⚠️ 결제일(${card.dueDay}일)이 지났는데 결제예정액이 남아 있습니다.
+         <b>결제일 마감 처리</b>를 누르면 통장에서 빠지고 다음 달로 넘어갑니다.`
+      : '';
+  }
 }
 
 /* ---------- 홈 ---------- */
@@ -753,9 +842,17 @@ function renderHome(m){
   $('#h-out').textContent = wonS(m.monthOut)+'원';
   $('#h-out-s').textContent = `변동 ${wonS(m.varSpent)} 포함`;
 
+  // 자산은 0인데 반복거래만 남아 있으면 숫자가 이상해 보인다 — 원인을 알려준다
+  const noAssets = m.totalAssets === 0 && (recurring.length > 0 || history.length > 0);
   const ok = m.monthNet >= 0 && m.available > 0;
-  $('#h-answer').className = 'answer ' + (ok ? 'ok' : 'no');
-  $('#h-answer-txt').innerHTML = ok
+  $('#h-answer').className = 'answer ' + (noAssets ? 'no' : (ok ? 'ok' : 'no'));
+  $('#h-answer-txt').innerHTML = noAssets
+    ? `등록된 자산이 없습니다.<br>
+       <span style="font-size:12.5px;font-weight:400;color:var(--text-secondary)">
+       반복 거래${history.length?'와 과거 기록':''}만 남아 있어서 숫자가 마이너스로 보입니다.
+       자산 탭에서 계좌를 등록하거나,
+       <b>내 데이터 → 전부 지우고 처음부터</b>로 완전히 비운 뒤 시작하세요.</span>`
+    : ok
     ? `아니요. 이번 달은 <span class="mono">${won(m.monthNet)}</span> 남습니다.<br>
        <span style="font-size:12.5px;font-weight:400;color:var(--text-secondary)">
        고정지출과 카드 결제를 모두 치르고 남는 금액입니다.</span>`
@@ -764,7 +861,7 @@ function renderHome(m){
   // 사용가능자금 분해
   const rows = [
     ['현금성 자산 (즉시 사용)', m.liquid, false],
-    ['− 카드 결제예정 (8/25)', -card.unpaid, false],
+    [`− ${card.name} 결제예정 (${card.dueDay}일)`, -card.unpaid, false],
     ['− 이번 달 남은 고정지출', -m.remOutNoCard, false],
     ['지금 쓸 수 있는 돈', m.available, true],
   ];
@@ -795,8 +892,8 @@ function renderHome(m){
             현금흐름 잉여 ${wonS(m.monthNet)}원에 적금 이체 ${wonS(m.savingTransfer)}원을 더한 값입니다.`],
     ['🏠', `순자산의 <b>${pct(div(m.totalAssets - sum(accounts.filter(a=>a.liq==='instant'||a.liq==='short'),a=>a.balance), m.totalAssets))}</b>가
             바로 쓸 수 없는 자산입니다. 총자산만 보면 실제보다 여유 있어 보입니다.`],
-    ['⚠️', `변동지출 예산 ${wonS(VARIABLE_BUDGET)}원 중 <b>${wonS(m.varSpent)}원</b>을 썼습니다.
-            (${Math.round(TODAY.getDate()/THIS_MONTH_DAYS*100)}% 경과 시점 · 사용률 ${Math.round(div(m.varSpent,VARIABLE_BUDGET)*100)}%)`],
+    ['⚠️', `변동지출 예산 ${wonS(variableBudget)}원 중 <b>${wonS(m.varSpent)}원</b>을 썼습니다.
+            (${Math.round(TODAY.getDate()/THIS_MONTH_DAYS*100)}% 경과 시점 · 사용률 ${Math.round(div(m.varSpent,variableBudget)*100)}%)`],
   ];
   $('#h-insights').innerHTML = ins.map(([i,t])=>
     `<div class="insight"><span class="ic">${i}</span><span>${t}</span></div>`).join('');
@@ -810,15 +907,15 @@ const CATS = {
 };
 const FAVS = [
   {n:'월급',   flow:'income',  amt:4500000, cat:'급여', acc:'shinhan'},
-  {n:'점심',   flow:'expense', amt:12000,   cat:'식비', acc:'shinhanCard'},
-  {n:'장보기', flow:'expense', amt:60000,   cat:'식비', acc:'shinhanCard'},
-  {n:'교통비', flow:'expense', amt:1550,    cat:'교통', acc:'kb'},
-  {n:'월세',   flow:'expense', amt:900000,  cat:'주거', acc:'kb'},
+  {n:'점심',   flow:'expense', amt:12000,   cat:'식비', acc:'mainCard'},
+  {n:'장보기', flow:'expense', amt:60000,   cat:'식비', acc:'mainCard'},
+  {n:'교통비', flow:'expense', amt:1550,    cat:'교통', acc:'living'},
+  {n:'월세',   flow:'expense', amt:900000,  cat:'주거', acc:'living'},
 ];
 let txnFlow = 'expense';
 
 function payOptions(){
-  return [{id:'shinhanCard', name:'신한카드 (결제일 25일)'}]
+  return [{id:'mainCard', name:`${card.name} (결제일 ${card.dueDay}일)`}]
     .concat(accounts.filter(a=>a.liq==='instant').map(a=>({id:a.id,name:a.name})));
 }
 function fillCats(){
@@ -831,7 +928,7 @@ function renderTxn(m){
 
   $('#t-count').textContent = `변동지출 ${txns.length}건 · ${wonS(m.varSpent)}원`;
   $('#t-list').innerHTML = txns.slice().sort((a,b)=>b.date.localeCompare(a.date)).map(t=>{
-    const accName = t.method==='card' ? '신한카드'
+    const accName = t.method==='card' ? card.name
       : (accounts.find(a=>a.id===t.acc)||{name:t.acc}).name;
     return `<div class="txn"><div class="l">
       <div class="ico">${t.method==='card'?'💳':'🏦'}</div>
@@ -840,10 +937,18 @@ function renderTxn(m){
       <div class="amt ${t.flow==='in'?'up':''}">${t.flow==='in'?'+':'−'}${won(t.amount).replace('원','')}</div></div>`;
   }).join('');
 
-  $('#t-recurring').innerHTML = recurring.slice().sort((a,b)=>a.day-b.day).map(r=>
-    `<div class="row"><div class="n"><span class="tag">${r.day}일</span>
-      <span class="name">${r.name}</span></div>
-     <div class="v ${r.flow==='in'?'up':''}">${r.flow==='in'?'+':'−'}${won(r.amount)}</div></div>`).join('');
+  const KIND_TAG = {saving:'저축', card:'카드', install:'할부'};
+  $('#t-recurring').innerHTML = recurring.length
+    ? recurring.slice().sort((a,b)=>a.day-b.day).map(r=>{
+        const k = r.isSaving?'saving':r.isCard?'card':r.isInstall?'install':'';
+        return `<div class="row"><div class="n"><span class="tag">${r.day}일</span>
+          <span class="name">${r.name}</span>
+          ${k?`<span class="tag">${KIND_TAG[k]}</span>`:''}</div>
+         <div class="v ${r.flow==='in'?'up':''}">${r.flow==='in'?'+':'−'}${won(r.amount)}
+         <button class="ghost-btn" data-rdel="${r.id}" style="margin-left:6px;padding:2px 7px">삭제</button>
+         </div></div>`;
+      }).join('')
+    : `<div class="muted-note">등록된 반복 거래가 없습니다. 아래에서 추가하세요.</div>`;
 }
 
 /* ---------- 자산 ---------- */
@@ -899,10 +1004,10 @@ function renderAsset(m){
 
   const bank = (accounts.find(a=>a.id==='shinhan') || {balance:m.liquid}).balance;
   $('#a-cards').innerHTML = `
-    <div class="row"><div class="n"><span class="name">결제 계좌 잔액 (신한 급여)</span></div><div class="v">${won(bank)}</div></div>
-    <div class="row"><div class="n"><span class="name">8/25 결제예정 (7월 사용분)</span></div><div class="v down">−${won(card.unpaid).replace('원','')}원</div></div>
-    <div class="row"><div class="n"><span class="name">8월 사용액 (9/25 결제 · 현재까지)</span></div><div class="v">${won(card.thisMonth)}</div></div>
-    <div class="row"><div class="n"><span class="name">9/25 결제 예상액 (월말 추정)</span></div><div class="v">${won(m.nextCard)}</div></div>
+    <div class="row"><div class="n"><span class="name">결제 계좌 잔액 (${(accounts.find(a=>a.id==='shinhan')||{name:'—'}).name})</span></div><div class="v">${won(bank)}</div></div>
+    <div class="row"><div class="n"><span class="name">이번 ${card.dueDay}일 결제예정 (전월 사용분)</span></div><div class="v down">−${won(card.unpaid).replace('원','')}원</div></div>
+    <div class="row"><div class="n"><span class="name">당월 사용액 (다음 ${card.dueDay}일 결제 · 현재까지)</span></div><div class="v">${won(card.thisMonth)}</div></div>
+    <div class="row"><div class="n"><span class="name">다음 결제 예상액 (월말 추정)</span></div><div class="v">${won(m.nextCard)}</div></div>
     <div class="row"><div class="n"><span class="name">할부 잔액 (${card.installLeft}회 × ${wonS(card.installMonthly)})</span></div><div class="v">${won(card.installBalance)}</div></div>
     <div class="row total"><div class="n">이 계좌에서 자유로운 금액</div><div class="v">${won(bank-card.unpaid)}</div></div>`;
 
@@ -946,9 +1051,14 @@ function renderAnalysis(m){
   ], false);
   const first = m.trend[0].v, last = m.trend[m.trend.length-1].v;
   $('#c-networth-note').innerHTML =
-    `모두 <b>말일 24시</b> 기준입니다. 1월 ${wonS(first)}원 → 8월 <b>${wonS(last)}원</b>
-     · ${m.trend.length-1}개월간 <b class="up">+${won(last-first)}</b>
-     (월평균 +${wonS(div(last-first,m.trend.length-1))}원) · 8월은 아직 확정 전 예상치`;
+    (m.trend.length < 2
+      ? `말일 24시 기준입니다. 아직 확정된 자금현황서가 없어 이번 달 예상치만 표시됩니다.`
+      : `모두 <b>말일 24시</b> 기준입니다. ${m.trend[0].m.slice(3)}월 ${wonS(first)}원 →
+         ${m.trend[m.trend.length-1].m.slice(3)}월 <b>${wonS(last)}원</b>
+         · ${m.trend.length-1}개월간
+         <b class="${last>=first?'up':'down'}">${wonSign(last-first)}</b>
+         (월평균 ${wonSignS(div(last-first, m.trend.length-1))}원)
+         · 마지막 달은 아직 확정 전 예상치`);
 
   // 자산 구성 — 누적 막대 + 직접 라벨 + 표
   const comp = GROUPS.map(g=>({...g, v:sum(accounts.filter(a=>groupOf(a)===g.key), a=>a.balance)}));
@@ -1018,6 +1128,14 @@ function etaLabel(months){
    ========================================================================= */
 function drawLine(sel, tipSel, labels, series, isForecast){
   const host = $(sel), tip = $(tipSel);
+  // 값이 전부 0이거나 점이 하나뿐이면 차트 대신 안내 문구를 보여준다
+  const flat = series.every(s => s.data.every(v => v === 0));
+  if (labels.length < 2 || flat) {
+    host.innerHTML = `<div class="muted-note" style="padding:34px 0;text-align:center">
+      아직 그릴 데이터가 없습니다.<br>자산 탭에서 계좌를 등록하면 여기에 추이가 그려집니다.</div>`;
+    if (tip) tip.style.opacity = 0;
+    return;
+  }
   const W = host.clientWidth || 350, H = 170;
   const pad = {t:14, r:8, b:22, l:44};
   const all = series.flatMap(s=>s.data);
@@ -1120,7 +1238,7 @@ $('#t-save').addEventListener('click', ()=>{
   const amt = +($('#t-amt').value.replace(/[^0-9]/g,''));
   if(!amt){ toast('금액을 입력해 주세요'); return; }
   const accId = $('#t-acc').value;
-  const isCard = accId === 'shinhanCard';
+  const isCard = accId === 'mainCard';
   const flow = txnFlow === 'income' ? 'in' : 'out';
 
   txns.push({id:Date.now(), date:$('#t-date').value, flow, amount:amt,
@@ -1128,7 +1246,7 @@ $('#t-save').addEventListener('click', ()=>{
              memo:$('#t-memo').value || $('#t-cat').value});
 
   if(isCard){
-    card.thisMonth += amt;                                    // 다음 달 결제예정 증가
+    card.thisMonth += amt;                                    // 당월 사용액(부채) 증가
   } else {
     const a = accounts.find(x=>x.id===accId);
     if(a) a.balance += (flow==='in' ? amt : -amt);            // 통장 잔액 즉시 변동
@@ -1224,23 +1342,7 @@ document.addEventListener('input', e=>{
   }
 });
 
-let clearArmed = false;
-$('#a-clear').addEventListener('click', ()=>{
-  if(!clearArmed){
-    clearArmed = true;
-    $('#a-clear').textContent = '한 번 더 누르면 비워집니다';
-    $('#a-clear').style.color = 'var(--bad)';
-    setTimeout(()=>{ clearArmed=false; $('#a-clear').textContent='샘플 비우고 내 데이터로 시작';
-                     $('#a-clear').style.color=''; }, 4000);
-    return;
-  }
-  clearArmed = false;
-  $('#a-clear').textContent = '샘플 비우고 내 데이터로 시작'; $('#a-clear').style.color='';
-  accounts.length = 0; loans.length = 0; txns.length = 0;
-  card.unpaid = 0; card.thisMonth = 0; card.installBalance = 0; card.installLeft = 0;
-  editing = null; saveState(); render();
-  toast('비웠습니다. 위 입력칸에서 등록해 주세요');
-});
+
 
 $('#s-presets').addEventListener('click', e=>{
   const b = e.target.closest('[data-preset]'); if(!b) return;
@@ -1272,6 +1374,118 @@ window.addEventListener('resize', ()=>render());
 
 
 /* =========================================================================
+   5-0. 변동 생활비 예산
+   ========================================================================= */
+$('#b-amt').addEventListener('input', e=>{
+  const n = e.target.value.replace(/[^0-9]/g,'');
+  e.target.value = n ? (+n).toLocaleString('ko-KR') : '';
+});
+$('#b-save').addEventListener('click', ()=>{
+  variableBudget = +$('#b-amt').value.replace(/[^0-9]/g,'');
+  saveState(); render();
+  toast(variableBudget ? `변동 생활비 예산 ${won(variableBudget)}` : '변동 생활비 예산을 0으로 두었습니다');
+});
+function fillBudgetForm(){
+  const inp = $('#b-amt'), note = $('#b-note');
+  if(document.activeElement !== inp)
+    inp.value = variableBudget ? variableBudget.toLocaleString('ko-KR') : '';
+  note.innerHTML = variableBudget
+    ? `식비·교통비처럼 매달 금액이 달라지는 지출의 한 달 예산입니다.
+       아직 안 쓴 예산은 <b>이번 달 예상 잔액</b>에서 미리 빼둡니다.`
+    : `예산이 <b>0</b>이라 앞으로 쓸 생활비를 전혀 반영하지 않습니다.
+       예상 잔액이 실제보다 넉넉하게 보일 수 있으니 대략이라도 넣어두세요.`;
+}
+
+/* =========================================================================
+   5-A. 카드 정보 편집
+   ========================================================================= */
+$('#c-day').innerHTML  = Array.from({length:31},(_,i)=>`<option value="${i+1}">${i+1}일</option>`).join('');
+$('#c-left').innerHTML = Array.from({length:37},(_,i)=>`<option value="${i}">${i}회</option>`).join('');
+
+function fillCardForm(){
+  $('#c-name').value   = card.name;
+  $('#c-day').value    = card.dueDay;
+  $('#c-unpaid').value = card.unpaid ? card.unpaid.toLocaleString('ko-KR') : '';
+  $('#c-this').value   = card.thisMonth ? card.thisMonth.toLocaleString('ko-KR') : '';
+  $('#c-inst').value   = card.installBalance ? card.installBalance.toLocaleString('ko-KR') : '';
+  $('#c-left').value   = card.installLeft;
+}
+['#c-unpaid','#c-this','#c-inst'].forEach(sel=>{
+  $(sel).addEventListener('input', e=>{
+    const n = e.target.value.replace(/[^0-9]/g,'');
+    e.target.value = n ? (+n).toLocaleString('ko-KR') : '';
+  });
+});
+/* 결제일이 지나면 한 번 눌러 한 달을 넘긴다.
+   통장에서 결제액이 빠지고, 당월 사용액이 다음 결제예정액이 된다. */
+$('#c-settle').addEventListener('click', ()=>{
+  if(!card.unpaid){ toast('결제할 금액이 없습니다'); return; }
+  const payAcc = accounts.find(a=>a.id==='shinhan') || accounts.find(a=>a.liq==='instant');
+  if(!payAcc){ toast('결제할 계좌가 없습니다'); return; }
+  const paid = card.unpaid;
+  payAcc.balance -= paid;
+  card.unpaid = card.thisMonth;
+  card.thisMonth = 0;
+  if(card.installLeft > 0){
+    payAcc.balance -= card.installMonthly;
+    card.installBalance = Math.max(0, card.installBalance - card.installMonthly);
+    card.installLeft -= 1;
+  }
+  saveState(); render(); fillCardForm();
+  toast(`${won(paid)} 결제 처리 · ${payAcc.name}에서 차감`);
+});
+
+$('#c-save').addEventListener('click', ()=>{
+  card.name = $('#c-name').value.trim() || card.name;
+  card.dueDay = +$('#c-day').value;
+  card.unpaid = +$('#c-unpaid').value.replace(/[^0-9]/g,'');
+  card.thisMonth = +$('#c-this').value.replace(/[^0-9]/g,'');
+  card.installBalance = +$('#c-inst').value.replace(/[^0-9]/g,'');
+  card.installLeft = +$('#c-left').value;
+  card.installMonthly = card.installLeft > 0
+    ? Math.round(card.installBalance / card.installLeft) : 0;
+  saveState(); render(); fillCardForm();
+  toast(`${card.name} · 결제일 ${card.dueDay}일로 저장했습니다`);
+});
+
+/* =========================================================================
+   5-B. 반복 거래 추가 / 삭제
+   ========================================================================= */
+let recFlow = 'out';
+$('#r-day').innerHTML = Array.from({length:31}, (_,i)=>
+  `<option value="${i+1}" ${i+1===25?'selected':''}>${i+1}일</option>`).join('');
+
+$('#r-flow').addEventListener('click', e=>{
+  const b = e.target.closest('button'); if(!b) return;
+  [...$('#r-flow').children].forEach(x=>x.classList.toggle('on', x===b));
+  recFlow = b.dataset.v;
+});
+$('#r-amt').addEventListener('input', e=>{
+  const n = e.target.value.replace(/[^0-9]/g,'');
+  e.target.value = n ? (+n).toLocaleString('ko-KR') : '';
+});
+$('#r-add').addEventListener('click', ()=>{
+  const name = $('#r-name').value.trim();
+  const amt  = +($('#r-amt').value.replace(/[^0-9]/g,''));
+  if(!name){ toast('이름을 입력해 주세요'); return; }
+  if(!amt) { toast('금액을 입력해 주세요'); return; }
+  const kind = $('#r-kind').value;
+  recurring.push({
+    id:'r'+Date.now(), name, flow:recFlow, amount:amt,
+    day:+$('#r-day').value, cat:name,
+    isSaving:kind==='saving', isCard:kind==='card', isInstall:kind==='install'
+  });
+  $('#r-name').value=''; $('#r-amt').value='';
+  saveState(); render(); toast('반복 거래를 추가했습니다');
+});
+$('#t-recurring').addEventListener('click', e=>{
+  const b = e.target.closest('[data-rdel]'); if(!b) return;
+  const i = recurring.findIndex(r=>String(r.id)===b.dataset.rdel);
+  if(i>=0) recurring.splice(i,1);
+  saveState(); render(); toast('삭제했습니다');
+});
+
+/* =========================================================================
    6. 저장 — localStorage (쓸 수 없는 환경이면 자동으로 메모리 전용으로 동작)
    ========================================================================= */
 const STORE_KEY = 'money-status-v1';
@@ -1286,7 +1500,7 @@ try {
 function snapshotState(){
   return {v:1, savedAt:new Date().toISOString(),
           accounts, loans, card, recurring, txns, history, goals,
-          variableBudget:VARIABLE_BUDGET};
+          variableBudget};
 }
 function refill(arr, next){
   arr.length = 0;
@@ -1298,6 +1512,7 @@ function applyState(d){
   refill(recurring, d.recurring); refill(txns, d.txns);
   refill(history, d.history); refill(goals, d.goals);
   if (d.card) Object.assign(card, d.card);
+  if (typeof d.variableBudget === 'number') variableBudget = d.variableBudget;
   return true;
 }
 function saveState(){
@@ -1372,6 +1587,42 @@ function initDataButtons(){
     e.target.value = '';
   });
 }
+
+/* 샘플 원본을 따로 보관해 두었다가 '되돌리기'에서 쓴다 */
+const SAMPLE = JSON.parse(JSON.stringify(
+  {accounts, loans, card, recurring, txns, history, goals}));
+
+function resetAll(){
+  accounts.length = 0; loans.length = 0; txns.length = 0;
+  recurring.length = 0; goals.length = 0; history.length = 0;
+  Object.assign(card, {unpaid:0, thisMonth:0, installBalance:0, installLeft:0});
+  variableBudget = 0;
+  simItems = []; editing = null;
+  saveState(); render();
+}
+function restoreSample(){
+  applyState({v:1, ...JSON.parse(JSON.stringify(SAMPLE))});
+  simItems = []; editing = null;
+  saveState(); render();
+}
+
+/* 두 번 눌러야 실행되는 위험 버튼 */
+function armButton(id, label, run){
+  const btn = document.getElementById(id); if(!btn) return;
+  let armed = false, timer = null;
+  btn.addEventListener('click', ()=>{
+    if(!armed){
+      armed = true; btn.textContent = '한 번 더 누르면 실행';
+      clearTimeout(timer);
+      timer = setTimeout(()=>{ armed=false; btn.textContent = label; }, 4000);
+      return;
+    }
+    armed = false; clearTimeout(timer); btn.textContent = label;
+    run();
+  });
+}
+armButton('d-reset',  '전부 지우고 처음부터', ()=>{ resetAll();      toast('전부 지웠습니다'); });
+armButton('d-sample', '샘플 데이터로 되돌리기', ()=>{ restoreSample(); toast('샘플로 되돌렸습니다'); });
 
 loadState();
 initDataButtons();
